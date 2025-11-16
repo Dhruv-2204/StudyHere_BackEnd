@@ -4,9 +4,9 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var morgan = require('morgan');
 var dotenv = require('dotenv');
-
 const PORT = process.env.PORT || 3000;
 const {MongoClient} = require('mongodb');
+const routes = require('./routes');
 
 dotenv.config();
 
@@ -20,22 +20,18 @@ async function connectToDB() {
     try {
         await client.connect();
         db = client.db('LessonShop');
-        console.log('Connected to MongoDB');
+        console.log('Connected to MongoDB successfully');
     } catch (err) {
         console.error('Failed to connect to MongoDB', err);
     }
 };
 
-function getDB() {
+function getDatabase() {
     return db;
 }
 
 // Initialize DB connection
-module.exports = { getDB };
-
-// Start the connection
-connectToDB();
-
+module.exports = { getDatabase};
 
 // Body Parser Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -57,7 +53,7 @@ app.get('/', function(req, res) {
 // load something from db to test
 app.get('/lessons', async function(req, res) {
     try {
-        const lessonsCollection = getDB().collection('lessons');
+        const lessonsCollection = getDatabase().collection('lessons');
         const lessons = await lessonsCollection.find({}).toArray();
         res.json(lessons);
     } catch (err) {
@@ -73,6 +69,15 @@ app.get('/status', function(req, res) {
     res.end();
 });
 
-app.listen(PORT, function() {
-    console.log(`Server is running on port http://localhost:${PORT}`);
-});
+// Use routes
+app.use('/api', routes);
+
+// Start server
+async function startServer() {
+    await connectToDB();
+    app.listen(PORT, function() {
+        console.log(`Server is running on http://localhost:${PORT}/api`);
+    });
+}
+
+startServer();
