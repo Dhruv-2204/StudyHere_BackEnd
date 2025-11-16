@@ -6,8 +6,6 @@ var morgan = require('morgan');
 var dotenv = require('dotenv');
 const PORT = process.env.PORT || 3000;
 const {MongoClient} = require('mongodb');
-const routes = require('./routes');
-
 dotenv.config();
 
 // MongoDb Connection URI
@@ -70,6 +68,7 @@ app.get('/status', function(req, res) {
 });
 
 // Use routes
+const routes = require('./routes'); // It is placed here and not at the top to avoid circular dependency issues
 app.use('/api', routes);
 
 // Start server
