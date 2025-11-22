@@ -29,4 +29,23 @@ router.post('/orders', async (req, res) => {
     res.end();
 });
 
+// get order by name
+
+router.get('/orders/:name', async (req, res) => {
+    try {
+        const db = getDatabase();
+        const orderName = req.params.name;
+        const order = await db.collection('orders').findOne({ name: orderName });
+        if (order) {
+            res.json(order);
+        } else {
+            res.status(404).json({ error: 'Order not found' });
+        }
+    } catch (err) {
+        console.error('Error fetching order:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    res.end();
+});
+
 module.exports = router;

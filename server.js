@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var morgan = require('morgan');
 var dotenv = require('dotenv');
+const path = require('path');
 const PORT = process.env.PORT || 3000;
 const {MongoClient} = require('mongodb');
 dotenv.config();
@@ -47,6 +48,20 @@ app.get('/', function(req, res) {
     res.end();
     
 });
+
+// Serve images from the `images` directory using express.static
+app.use('/images', express.static(path.join(__dirname, 'public/images'), {
+    dotfiles: 'deny', //no dotfiles exposed
+    index: false, 
+    extensions: ['jpg','jpeg','png','gif','webp']
+}));
+
+// If static didn't find the file, respond with a JSON 404 for clarity
+app.use('/images', (req, res) => {
+    const filename = req.path.replace(/^\//, '');
+    res.status(404).json({ error: 'Image not found', filename });
+});
+
 
 // load something from db to test
 app.get('/lessons', async function(req, res) {
