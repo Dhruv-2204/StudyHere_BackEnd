@@ -3,14 +3,32 @@ var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var morgan = require('morgan');
-var dotenv = require('dotenv');
+// var dotenv = require('dotenv');
 const path = require('path');
 const PORT = process.env.PORT || 3000;
 const {MongoClient} = require('mongodb');
-dotenv.config();
+// dotenv.config();
 
 // MongoDb Connection URI
-const uri = dotenv.config().parsed.MONGO_URI;
+// const uri = dotenv.config().parsed.MONGO_URI;
+// if (!uri) {
+//   throw new Error('Missing MONGO_URI');
+// }
+
+// Load .env only in local development
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
+// MongoDB Connection URI
+const uri = process.env.MONGO_URI;
+
+if (!uri) {
+  throw new Error('Missing MONGO_URI environment variable');
+}
+
+
+
 const client = new MongoClient(uri);
 let db;
 
@@ -28,6 +46,8 @@ async function connectToDB() {
 function getDatabase() {
     return db;
 }
+
+
 
 // Initialize DB connection
 module.exports = { getDatabase};
