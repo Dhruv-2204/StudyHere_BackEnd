@@ -15,18 +15,38 @@ router.get('/orders', async (req, res) => {
     res.end();
 });
 
-// Route to create a new order
+// POST /api/orders - Create new order
 router.post('/orders', async (req, res) => {
     try {
+        const { name, phone, lessons } = req.body;
+        
         const db = getDatabase();
-        const newOrder = req.body;
-        const result = await db.collection('orders').insertOne(newOrder);
-        res.status(201).json({ message: 'Order created', orderId: result.insertedId });
-    } catch (err) {
-        console.error('Error creating order:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
+
+        // Check if all lessons still have enough spaces
+        for (const item of lessons) {
+            const lesson = await db.collection('lessons').findOne({ id: item.lessonId });
+            if (!lesson || lesson.spaces < 1) {
+                return res.status(400).json({ 
+                    error: `Sorry, ${item.subject} is no longer available` 
+                });
+            }
+        }
+        
+        const order = {
+            name,
+            phone,
+            lessons,
+            orderDate: new Date()
+        };
+        
+        const result = await db.collection('orders').insertOne(order);
+        res.status(201).json({ 
+            message: 'Order created successfully', 
+            orderId: result.insertedId 
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to create order' });
     }
-    res.end();
 });
 
 // get order by name
