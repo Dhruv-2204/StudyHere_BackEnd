@@ -54,4 +54,28 @@ router.get('/search', async (req, res) => {
     }
 });
 
+// PUT /api/lessons/:id - Update lesson (for spaces)
+//  Need to add for other stuff too apart from spaces
+router.put('/lessons/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+        
+        const db = getDatabase();
+        const result = await db.collection('lessons').updateOne(
+            { id: parseInt(id) },
+            { $set: updateData }
+        );
+        
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ error: 'Lesson not found' });
+        }
+        
+        res.json({ message: 'Lesson updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update lesson' });
+        
+    }
+});
+
 module.exports = router;
