@@ -19,17 +19,33 @@ router.get('/lessons', async (req, res) => {
 // GET /api/search - Search lessons  https://studyhere-backend-1-1vqv.onrender.com/endpoint/search?q=m
 router.get('/search', async (req, res) => {
     try {
-        const { q } = req.query;
+        // const { q } = req.query;
         const db = getDatabase();
+
+        // Aggregate functions
+        const q = req.query.q || '';
+        const lessons = await db.collection('lessons').aggregate([
+          { $addFields: {
+              priceStr: { $toString: '$price' },
+              spacesStr: { $toString: '$spaces' }
+            }
+          },
+          { $match: { $or: [
+              { subject: { $regex: q, $options: 'i' } },
+              { location: { $regex: q, $options: 'i' } },
+              { priceStr: { $regex: q, $options: 'i' } },
+              { spacesStr: { $regex: q, $options: 'i' } }
+          ] } }
+        ]).toArray();
         
-        const lessons = await db.collection('lessons').find({
-            $or: [
-                { subject: { $regex: q, $options: 'i' } },
-                { location: { $regex: q, $options: 'i' } },
-                { price: { $regex: q, $options: 'i' } },
-                { spaces: { $regex: q, $options: 'i' } }
-            ]
-        }).toArray();
+        // const lessons = await db.collection('lessons').find({
+        //     $or: [
+        //         { subject: { $regex: q, $options: 'i' } },
+        //         { location: { $regex: q, $options: 'i' } },
+        //         { price: { $regex: q, $options: 'i' } },
+        //         { spaces: { $regex: q, $options: 'i' } }
+        //     ]
+        // }).toArray();
         
         res.json(lessons);
     } catch (error) {
