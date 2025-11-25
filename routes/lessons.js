@@ -15,25 +15,8 @@ router.get('/lessons', async (req, res) => {
     res.end();
 });
 
-// router.get('/lessons/:id', async (req, res) => {
-//     const lessonId = req.params.id;
-//     try {
-//         const db = getDatabase();
-//         const lesson = await db.collection('lessons').findOne({ _id: lessonId });
-//         if (lesson) {
-//             res.json(lesson);
-//         }
-//         else {
-//             res.status(404).json({ error: 'Lesson not found' });
-//         }
-//     } catch (err) {
-//         console.error('Error fetching lesson:', err);
-//         res.status(500).json({ error: 'Internal Server Error' });
-//     }
-//     res.end();
-// });
 
-// GET /api/search - Search lessons  http://localhost:3000/api/search?q=m
+// GET /api/search - Search lessons  https://studyhere-backend-1-1vqv.onrender.com/endpoint/search?q=m
 router.get('/search', async (req, res) => {
     try {
         const { q } = req.query;

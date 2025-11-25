@@ -104,13 +104,13 @@ app.get('/status', function(req, res) {
 
 // Use routes
 const routes = require('./routes'); // It is placed here and not at the top to avoid circular dependency issues
-app.use('/api', routes);
+app.use('/endpoint', routes);
 
 // Start server
 async function startServer() {
     await connectToDB();
     app.listen(PORT, function() {
-        console.log(`Server is running on http://localhost:${PORT}/api`);
+        console.log(`Server is running on https://studyhere-backend-1-1vqv.onrender.com/endpoint`);
     });
 }
 
