@@ -20,23 +20,9 @@ router.get('/lessons', async (req, res) => {
 router.get('/search', async (req, res) => {
     try {
         // const { q } = req.query;
-        const db = getDatabase();
+        // const db = getDatabase();
 
-        // Aggregate functions
-        const q = req.query.q || '';
-        const lessons = await db.collection('lessons').aggregate([
-          { $addFields: {
-              priceStr: { $toString: '$price' },
-              spacesStr: { $toString: '$spaces' }
-            }
-          },
-          { $match: { $or: [
-              { subject: { $regex: q, $options: 'i' } },
-              { location: { $regex: q, $options: 'i' } },
-              { priceStr: { $regex: q, $options: 'i' } },
-              { spacesStr: { $regex: q, $options: 'i' } }
-          ] } }
-        ]).toArray();
+        
         
         // const lessons = await db.collection('lessons').find({
         //     $or: [
@@ -46,12 +32,44 @@ router.get('/search', async (req, res) => {
         //         { spaces: { $regex: q, $options: 'i' } }
         //     ]
         // }).toArray();
+
+        const { q } = req.query;
+        const db = getDatabase();
+
+        const query = [];
+        query.push({ subject: { $regex: q, $options: 'i' } });
+        query.push({ location: { $regex: q, $options: 'i' } });
+
+        // Detect if q is numeric and query directly
+        if (!isNaN(q)) {
+        const num = Number(q);
+        query.push({ price: num });
+        query.push({ spaces: num });
+        }
+
+        const lessons = await db.collection('lessons').find({ $or: query }).toArray();
         
         res.json(lessons);
     } catch (error) {
         res.status(500).json({ error: 'Search failed' });
     }
 });
+
+// Aggregate functions
+        // const q = req.query.q || '';
+        // const lessons = await db.collection('lessons').aggregate([
+        //   { $addFields: {
+        //       priceStr: { $toString: '$price' },
+        //       spacesStr: { $toString: '$spaces' }
+        //     }
+        //   },
+        //   { $match: { $or: [
+        //       { subject: { $regex: q, $options: 'i' } },
+        //       { location: { $regex: q, $options: 'i' } },
+        //       { priceStr: { $regex: q, $options: 'i' } },
+        //       { spacesStr: { $regex: q, $options: 'i' } }
+        //   ] } }
+        // ]).toArray();
 
 // PUT /api/lessons/:id - Update lesson (for spaces)
 //  Need to add for other stuff too apart from spaces
