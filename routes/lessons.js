@@ -42,10 +42,14 @@ router.get('/search', async (req, res) => {
 
         // Detect if q is numeric and query directly
         if (!isNaN(q)) {
-        const num = Number(q);
-        query.push({ price: num });
-        query.push({ spaces: num });
+            query.push({
+                $expr: { $regexMatch: { input: { $toString: "$price" }, regex: q } }
+            });
+            query.push({
+                $expr: { $regexMatch: { input: { $toString: "$spaces" }, regex: q } }
+            });
         }
+
 
         const lessons = await db.collection('lessons').find({ $or: query }).toArray();
         
