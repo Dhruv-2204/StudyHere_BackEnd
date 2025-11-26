@@ -19,20 +19,6 @@ router.get('/lessons', async (req, res) => {
 // GET /api/search - Search lessons  https://studyhere-backend-1-1vqv.onrender.com/endpoint/search?q=m
 router.get('/search', async (req, res) => {
     try {
-        // const { q } = req.query;
-        // const db = getDatabase();
-
-        
-        
-        // const lessons = await db.collection('lessons').find({
-        //     $or: [
-        //         { subject: { $regex: q, $options: 'i' } },
-        //         { location: { $regex: q, $options: 'i' } },
-        //         { price: { $regex: q, $options: 'i' } },
-        //         { spaces: { $regex: q, $options: 'i' } }
-        //     ]
-        // }).toArray();
-
         const { q } = req.query;
         const db = getDatabase();
 
@@ -40,7 +26,7 @@ router.get('/search', async (req, res) => {
         query.push({ subject: { $regex: q, $options: 'i' } });
         query.push({ location: { $regex: q, $options: 'i' } });
 
-        // Detect if q is numeric and query directly
+        // Detect if q is numeric
         if (!isNaN(q)) {
             query.push({
                 $expr: { $regexMatch: { input: { $toString: "$price" }, regex: q } }
@@ -59,24 +45,9 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// Aggregate functions
-        // const q = req.query.q || '';
-        // const lessons = await db.collection('lessons').aggregate([
-        //   { $addFields: {
-        //       priceStr: { $toString: '$price' },
-        //       spacesStr: { $toString: '$spaces' }
-        //     }
-        //   },
-        //   { $match: { $or: [
-        //       { subject: { $regex: q, $options: 'i' } },
-        //       { location: { $regex: q, $options: 'i' } },
-        //       { priceStr: { $regex: q, $options: 'i' } },
-        //       { spacesStr: { $regex: q, $options: 'i' } }
-        //   ] } }
-        // ]).toArray();
 
-// PUT /api/lessons/:id - Update lesson (for spaces)
-//  Need to add for other stuff too apart from spaces
+
+// PUT /api/lessons/:id - Update lesson 
 router.put('/lessons/:id', async (req, res) => {
     try {
         const { id } = req.params;
